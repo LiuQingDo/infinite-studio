@@ -1,3 +1,11 @@
+# infinite-studio
+
+本项目面向原创角色和品牌吉祥物内容创作，当前以本仓库中的无限画布为二次开发基础，优先完善中文体验。产品定位见 [产品定位与范围](docs/产品定位与范围.md)，上游基线、接入状态与 Windows 启动步骤见 [二次开发基础](docs/二次开发基础.md)。
+
+当前采用上游 `main` 提交 `9cd3deacbcc598361807afc16c059a80dd18b6f9`，保留完整上游历史和 [MIT 许可证](LICENSE)。此提交位于 v0.20.0 标签之后；尚未接入本站图片服务、账户或云端作品。本机开发服务器已启动，页面尚待用户验收。以下保留上游原始说明和作者信息。
+
+---
+
 <p align="center">
   <img src="web/public/logo.svg" width="96" alt="infinite-canvas logo">
 </p>

@@ -1,6 +1,6 @@
 export default {
     meta: {
-        title: "无限画布",
+        title: "infinite-studio",
         description: "一个无限画布创作工具",
     },
     theme: { toggle: "切换主题" },
@@ -44,7 +44,7 @@ export default {
         returns: { image: "文生图（images 为空）和图生图（images 有参考图）接口不同，脚本需自行区分；返回图片 URL 或 dataURL 字符串，也可返回它们的数组，或 [{ dataUrl }] / [{ url }] / [{ b64_json }]", video: "脚本内部完成轮询，返回 { url } 或 { blob } 或视频 URL 字符串", audio: "返回 Blob，或 base64 / dataURL 字符串，或 { b64_json } / { data } / { url }", text: "用 onDelta(text) 推送流式，最终 return 完整文本字符串" },
         templates: { openai: "OpenAI 规范", gemini: "Gemini 规范" },
         authoring: {
-            intro: "请为 Infinite Canvas 编写一段模型调用脚本。能力类型：{{capability}}。目标模型：{{model}}。",
+            intro: "请为 infinite-studio 编写一段模型调用脚本。能力类型：{{capability}}。目标模型：{{model}}。",
             shape: "请写成一个 async function，把用到的变量写在参数列表里，并把 params 拆成 size、quality、count 等字段，方便对照。不要 import，不要 Markdown 代码围栏。函数内发请求并 return 结果；因为运行时会注入同名局部变量，最后需要 return await 函数名({ 同样的参数 })。",
             returnTitle: "返回要求",
             variablesTitle: "可用变量",
@@ -395,7 +395,7 @@ export default {
         },
         localStorage: {
             title: "IndexedDB 存储使用情况",
-            description: "查看 Infinite Canvas 在浏览器中保存的数据量，并按对象仓库统计内容体积。",
+            description: "查看 infinite-studio 在浏览器中保存的数据量，并按对象仓库统计内容体积。",
             indexedDbUsage: "IndexedDB 占用",
             siteUsage: "站点总占用",
             quota: "可用配额",
@@ -404,7 +404,7 @@ export default {
             quotaHint: "由浏览器动态分配",
             quotaUnavailable: "当前浏览器不提供配额估算",
             quotaProgress: "站点配额使用率",
-            mainDatabase: "Infinite Canvas 主数据",
+            mainDatabase: "infinite-studio 主数据",
             records: "{{count}} 条",
             refresh: "刷新统计",
             readFailed: "读取本地存储失败",
