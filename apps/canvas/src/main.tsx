@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import "antd/dist/reset.css";
 import "streamdown/styles.css";
 import "./styles/globals.css";
+import "./styles/canvas-library.css";
 import { RouterProvider } from "react-router-dom";
 
 import { AppProviders } from "@/components/layout/app-providers";

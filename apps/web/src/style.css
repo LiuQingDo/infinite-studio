@@ -65,3 +65,9 @@
   .assets-shelf-heading{padding:22px 20px 16px}.asset-tabs{padding:0 8px}.asset-empty{min-height:300px}.content-canvas{height:calc(100dvh - 170px)}
 }
 .embedded-canvas{display:block;width:100%;height:100%;border:0;border-radius:8px;background:#faf9f4}
+
+.embedded-canvas.canvas-fullscreen{position:fixed;inset:0;width:100vw;height:100dvh;z-index:100;border-radius:0}
+
+.embedded-canvas[hidden]{display:none}
+.content-canvas{position:relative}
+.canvas-loading{position:absolute;inset:12px;z-index:2;display:grid;place-items:center;background:#f8f8f2;color:#84917e;font-size:12px;letter-spacing:.04em}

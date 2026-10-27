@@ -1,4 +1,4 @@
-import { Check, Download, Pencil, Trash2, X } from "lucide-react";
+import { ArrowUpRight, Check, Download, Pencil, Trash2, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button, Input } from "antd";
 import { useTranslation } from "react-i18next";
@@ -33,8 +33,9 @@ export function CanvasProjectCard({ project }: { project: CanvasProject }) {
     };
 
     return (
-        <article className="group flex min-h-44 cursor-pointer flex-col justify-between rounded-2xl bg-[#f1eee8] p-5 transition hover:bg-[#ebe6dc] dark:bg-white/5 dark:hover:bg-white/10" onClick={() => !editing && open()}>
-            <div className="flex items-start gap-3">
+        <article className="canvas-project-card" onClick={() => !editing && open()}>
+            <div className="canvas-project-cover" aria-hidden="true"><span className="canvas-cover-grid"/><span className="canvas-cover-sheet">✳</span><span className="canvas-cover-line"/><ArrowUpRight className="canvas-cover-arrow" size={18}/></div>
+            <div className="canvas-project-body"><div className="flex items-start gap-3">
                 <input
                     type="checkbox"
                     checked={selected}
@@ -54,14 +55,14 @@ export function CanvasProjectCard({ project }: { project: CanvasProject }) {
                             open();
                         }}
                     >
-                        <h2 className="truncate text-xl font-semibold">{project.title}</h2>
-                        <p className="mt-3 text-sm leading-6 text-stone-600 dark:text-stone-400">
+                        <h2 className="truncate text-lg font-semibold">{project.title}</h2>
+                        <p className="mt-2 text-sm leading-6 text-stone-500">
                             {t("canvas.project.stats", { nodes: project.nodes.length, connections: project.connections.length })}
                         </p>
                     </button>
                 )}
             </div>
-            <div className="mt-8 flex items-end justify-between gap-3">
+            <div className="mt-5 flex items-end justify-between gap-3">
                 <p className="text-xs text-stone-500">{t("canvas.project.updated", { date: new Date(project.updatedAt).toLocaleString(i18n.resolvedLanguage, { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }) })}</p>
                 <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
                     {editing ? (
@@ -77,7 +78,7 @@ export function CanvasProjectCard({ project }: { project: CanvasProject }) {
                         </>
                     )}
                 </div>
-            </div>
+            </div></div>
         </article>
     );
 }

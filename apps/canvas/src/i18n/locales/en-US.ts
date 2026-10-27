@@ -217,6 +217,12 @@ export default {
     canvas: {
         defaultTitle: "Infinite Canvas {{count}}",
         library: "Canvas library",
+        libraryEyebrow: "CANVAS WORKSPACE",
+        libraryHeadline: "Give ideas room",
+        libraryHeadlineAccent: "to grow freely.",
+        libraryDescription: "Collect references and connect ideas in a space of their own.",
+        collectionEyebrow: "YOUR PROJECTS",
+        collectionDescription: "Projects are saved in this browser, ready for you to return to.",
         title: "Infinite Canvas",
         imported: "Imported {{count}} canvases",
         importFailed: "Import failed. Select a valid canvas package.",

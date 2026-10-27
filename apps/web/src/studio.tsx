@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, CircleHelp, FolderHeart, Grid2X2, Image, ImagePlus, LayoutGrid, Sparkles, StickyNote, UserRound, X } from 'lucide-react';
@@ -30,6 +30,9 @@ function TemplateArt({ tone }: { tone: string }) {
 
 export function App() {
   const [page, setPage] = useState<Page>('home');
+  const [canvasProjectOpen, setCanvasProjectOpen] = useState(false);
+  const [canvasReady, setCanvasReady] = useState(false);
+  const canvasFrame = useRef<HTMLIFrameElement>(null);
   const [assetCategory, setAssetCategory] = useState<AssetCategory>('prompts');
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState('');
@@ -41,6 +44,15 @@ export function App() {
   const [prompt, setPrompt] = useState('');
   const [ratio, setRatio] = useState('1:1');
   const [reference, setReference] = useState<{ name: string; data: string } | null>(null);
+  useEffect(() => {
+    const onCanvasRoute = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== canvasFrame.current?.contentWindow || event.data?.type !== 'infinite-studio:canvas-route') return;
+      setCanvasProjectOpen(event.data.projectOpen === true);
+      setCanvasReady(true);
+    };
+    window.addEventListener('message', onCanvasRoute);
+    return () => window.removeEventListener('message', onCanvasRoute);
+  }, []);
   const status = useQuery({ queryKey: ['status'], queryFn: () => readJson<ServiceStatus>('/api/status'), retry: false });
   const tasks = useQuery({ queryKey: ['tasks', session?.user.id], queryFn: () => readJson<{ tasks: ImageTask[] }>('/api/tasks', session!.access_token), enabled: Boolean(session), retry: false });
   useEffect(() => {
@@ -110,7 +122,8 @@ export function App() {
         </>}
         {page === 'templates' && <PromptLibrary onUse={useLibraryPrompt}/>}
         {page === 'create' && <><div className="page-heading compact"><span className="section-number">图片创作 / 02</span><h1>让灵感<em>变成你的作品。</em></h1><p>在下方完善创意。图片生成服务尚未接通。</p></div><div className="create-layout"><section className="editor-panel"><div className="editor-title"><div><span className="section-number">创作起点</span><h2>{selected?.name ?? '自由创作'}</h2></div><button className="text-button" onClick={() => setPage('templates')}>浏览提示词库 <ArrowUpRight size={14}/></button></div>{selected && <><p className="field-hint">填写模板字段以生成提示词草稿。修改字段会重新生成提示词，请在填写完成后再进行最终编辑。</p>{selected.fields.map(field => <label className="field" key={field.key}>{field.label}<input value={values[field.key] ?? ''} placeholder={field.placeholder} onChange={e => updateField(field.key, e.target.value)}/></label>)}</>}<label className="field">提示词 <span>可编辑</span><textarea rows={6} value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="描述你想创作的画面…"/></label><div className="field"><span>参考图 <small>可选 · 仅当前会话</small></span>{reference ? <div className="reference-preview"><img src={reference.data} alt="已选择的参考图"/><span>{reference.name}</span><button className="icon-button" aria-label="移除参考图" onClick={() => setReference(null)}><X size={16}/></button></div> : <label className="upload-box"><ImagePlus size={18}/> 添加图片 <input type="file" accept="image/*" onChange={e => { loadImage(e.target.files?.[0]); e.currentTarget.value = ''; }}/></label>}</div><label className="field">图片比例<select value={ratio} onChange={e => setRatio(e.target.value)}><option>1:1</option><option>4:5</option><option>3:4</option><option>16:9</option><option>9:16</option></select></label>{message && <p className="form-message" role="alert">{message}</p>}<button className="dark-button wide" disabled>生成图片 <Sparkles size={16}/></button><p className="availability"><CircleHelp size={14}/> 配置生成服务后，此处才会提供生成、费用和模型设置。</p></section><section className="result-panel" aria-labelledby="result-title"><div className="result-top"><span className="section-number">创作结果</span><span className="badge">尚未接通</span></div><div className="result-empty"><div className="result-symbol">✳</div><h2 id="result-title">为接下来的作品<br/><em>留一片空间。</em></h2><p>图片生成服务接通后，生成结果将显示在这里。</p></div><div className="result-bottom">暂无图片 <span>✳</span></div></section></div></>}
-        {page === 'canvas' && <iframe className="embedded-canvas" title="无限画布" src="/canvas-app/#/canvas"/>}
+        {page === 'canvas' && !canvasReady && <div className="canvas-loading" role="status">正在加载画布工作区…</div>}
+        <iframe ref={canvasFrame} className={`embedded-canvas ${page === 'canvas' && canvasProjectOpen ? 'canvas-fullscreen' : ''}`} hidden={page !== 'canvas'} title="无限画布" src="/canvas-app/#/canvas"/>
         {page === 'assets' && <section className="assets-page" aria-labelledby="assets-title">
           <div className="page-heading"><span className="section-number">我的资产 / 04</span><h1 id="assets-title">收藏每一个<em>创作灵感。</em></h1><p>在这里整理提示词和生成的图片，让灵感随时可以继续。</p></div>
           <div className="assets-shelf">

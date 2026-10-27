@@ -6,13 +6,20 @@
         <meta name="description" content="一个无限画布创作工具" />
         <link rel="icon" href="%BASE_URL%logo.svg" />
         <title>无限画布</title>
+        <style>
+            html { background: #f8f8f2; }
+            html.dark { background: #171717; }
+        </style>
         <script>
+            var t = "light";
             try {
                 var s = JSON.parse(localStorage.getItem("infinite-canvas:theme_store") || "{}");
-                var t = s.state && s.state.theme === "light" ? "light" : "dark";
-                document.documentElement.classList.toggle("dark", t === "dark");
-                document.documentElement.style.colorScheme = t;
+                // The project list is light; individual projects can retain the chosen theme.
+                var isProject = /^#\/canvas\/[^/?#]+/.test(window.location.hash);
+                if (isProject && s.version === 1 && s.state && s.state.theme === "dark") t = "dark";
             } catch (e) {}
+            document.documentElement.classList.toggle("dark", t === "dark");
+            document.documentElement.style.colorScheme = t;
         </script>
     </head>
     <body class="bg-background text-foreground antialiased">

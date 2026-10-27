@@ -217,6 +217,12 @@ export default {
     canvas: {
         defaultTitle: "无限画布 {{count}}",
         library: "画布库",
+        libraryEyebrow: "画布工作区 / CANVAS WORKSPACE",
+        libraryHeadline: "给想法一张",
+        libraryHeadlineAccent: "自由生长的画布。",
+        libraryDescription: "在这里收集素材、连接灵感，让每一次探索都有自己的空间。",
+        collectionEyebrow: "你的创作空间 / YOUR PROJECTS",
+        collectionDescription: "每个项目都会保存在当前浏览器中，随时回来继续创作。",
         title: "无限画布",
         imported: "已导入 {{count}} 个画布",
         importFailed: "导入失败，请选择有效的画布压缩包",
