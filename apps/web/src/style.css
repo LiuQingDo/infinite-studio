@@ -64,3 +64,4 @@
   .rail{flex-wrap:wrap;padding:10px 5% 0}.rail .brand{order:1}.rail .account-link{order:2;margin-left:auto}.rail nav{order:3;flex:0 0 100%;width:100%;margin:8px 0 0;overflow-x:auto;justify-content:flex-start;padding-bottom:8px}.rail nav .rail-item{flex:none;gap:6px;padding:9px 10px;font-size:11px}.rail nav .rail-item>span:not(.nav-dot){display:inline}.rail nav .nav-dot{display:none}.rail nav .rail-item svg{width:15px;height:15px}.rail .brand>span:last-child{display:block}.rail .account-link>span{display:none}
   .assets-shelf-heading{padding:22px 20px 16px}.asset-tabs{padding:0 8px}.asset-empty{min-height:300px}.content-canvas{height:calc(100dvh - 170px)}
 }
+.embedded-canvas{display:block;width:100%;height:100%;border:0;border-radius:8px;background:#faf9f4}

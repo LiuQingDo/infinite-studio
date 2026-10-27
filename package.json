@@ -2,13 +2,18 @@
   "name": "infinite-studio",
   "private": true,
   "packageManager": "pnpm@11.21.0",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "pnpm --filter @infinite-studio/web dev",
     "dev:api": "pnpm --filter @infinite-studio/api dev",
-    "build": "pnpm -r --if-present build",
+    "build": "pnpm -r --filter !@infinite-studio/canvas --if-present build && pnpm --filter @infinite-studio/canvas build",
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "vitest run"
   },
-  "devDependencies": { "typescript": "^5.9.3", "vitest": "^3.2.4" }
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
 }

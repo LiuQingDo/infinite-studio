@@ -1,6 +1,10 @@
 # infinite-studio
 
-面向海外用户的 AI 图片创作项目，视频能力作为辅助方向。当前已有可在本地运行的架构基础与工作区预览；真实图片生成、文件上传和云端服务尚未接通。
+面向海外用户的 AI 图片创作项目，视频能力作为辅助方向。当前已有可在本地运行的架构基础与工作区预览；平台的图片生成和云端服务尚未接通。
+
+“画布项目”集成了 Infinite Canvas 的画布编辑器，项目保存在当前浏览器。画布内的 AI 生成、Agent 和插件功能需要分别配置相应服务或插件。
+
+画布源码基于 [basketikun/infinite-canvas](https://github.com/basketikun/infinite-canvas) 的 `9cd3deacbcc598361807afc16c059a80dd18b6f9`，许可证保留在 `apps/canvas/LICENSE`。
 
 ## 本地启动
 
