@@ -1,13 +1,13 @@
-# Architecture Foundation Implementation Plan
+# 架构基础实施计划
 
-**Goal:** Create a runnable foundation for the approved image-first architecture without enabling unverified paid generation.
+**目标：** 为已确认的图片优先架构建立可运行的基础，同时不开放未经验证的付费生成。
 
-**Architecture:** A Vite/React app talks to a Cloudflare Worker using same-origin API routes; Supabase supplies authentication and RLS-protected task and asset records. Provider and queue integration remain gated until pricing, safe submission and recovery are implemented.
+**架构：** Vite/React 应用通过同源 API 路由访问 Cloudflare Worker；Supabase 提供身份验证，以及受行级安全策略保护的任务和素材记录。在价格、安全提交和恢复机制落实之前，供应商和队列集成保持关闭。
 
-**Tech Stack:** pnpm workspace, TypeScript, React, Vite, React Flow, Cloudflare Workers, Supabase/PostgreSQL, Vitest.
+**技术栈：** pnpm 工作区、TypeScript、React、Vite、React Flow、Cloudflare Workers、Supabase/PostgreSQL、Vitest。
 
-1. Create workspace, shared contracts, Worker configuration, and provider interface; verify type checking and bundling.
-2. Implement an authenticated read-only task API and an explicitly disabled generation endpoint; test missing configuration, authentication and owner scoping.
-3. Add a private Storage bucket and RLS-protected task and asset schema; do not grant client writes before upload validation and budget controls exist.
-4. Build a minimal English studio shell with session handling, a node canvas and truthful service status; verify local browser rendering.
-5. Document setup, changed architecture status and remaining integration work; run available checks without deploying or creating external accounts.
+1. 建立工作区、共享契约、Worker 配置和供应商接口；验证类型检查与打包。
+2. 实现需要身份验证的只读任务接口和明确关闭的生成接口；测试缺少配置、身份验证和用户数据隔离。
+3. 添加私有 Storage 存储桶，以及受行级安全策略保护的任务和素材表；在上传校验和预算控制完成前，不授予客户端写入权限。
+4. 建立包含会话处理、节点画布和真实服务状态的基础工作区，并验证本地浏览器渲染。当前界面以中文为主，英文体验后续评估。
+5. 记录配置方法、架构状态和剩余集成工作；运行可用检查，不部署或创建外部账户。
