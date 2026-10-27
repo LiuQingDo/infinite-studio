@@ -48,3 +48,19 @@
 .content-canvas .workspace-sidebar[hidden]{display:none}
 .materials-toggle{gap:7px;padding:8px 10px;font-size:11px;white-space:nowrap}
 @media(max-width:700px){.main-canvas{height:auto;min-height:calc(100dvh - 65px)}.content-canvas{height:calc(100dvh - 120px);min-height:500px;padding:8px}.content-canvas .workspace-bar{height:58px}.content-canvas .session-label{font-size:0;padding:7px}.content-canvas .session-label .status-dot{margin:0}.content-canvas .workspace-create{display:none}.content-canvas .canvas{height:100%}.content-canvas .workspace-sidebar{border:1px solid #dfe5da}.materials-toggle span{display:none}}
+
+/* The asset collection keeps prompts and generated images together. */
+.assets-shelf{border:1px solid #dee2d5;border-radius:8px;background:#fbfaf6;overflow:hidden}
+.assets-shelf-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;padding:26px 28px 20px}
+.assets-shelf-heading h2{font:400 27px Georgia,serif;letter-spacing:-.04em;margin:8px 0 0}
+.assets-shelf-note{color:#a1aa9b;font-size:11px}
+.asset-tabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid #e3e7dd;overflow-x:auto}
+.asset-tab{position:relative;display:flex;align-items:center;gap:8px;white-space:nowrap;padding:14px 12px;border:0;background:transparent;color:#899485;font-size:12px}
+.asset-tab:hover,.asset-tab.active{color:#40583a}.asset-tab.active:after{content:"";position:absolute;bottom:0;left:12px;right:12px;height:2px;background:#718d65}
+.asset-empty{min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:44px 24px}
+.asset-empty-icon{display:grid;place-items:center;width:54px;height:54px;margin-bottom:22px;border:1px solid #dbe5d4;border-radius:16px;background:#edf2e9;color:#78916e}
+.asset-empty h3{font:400 25px Georgia,serif;letter-spacing:-.03em;margin:12px 0 8px}.asset-empty p{max-width:350px;color:#899485;font-size:12px;line-height:1.75;margin:0 0 22px}
+@media(max-width:700px){
+  .rail{flex-wrap:wrap;padding:10px 5% 0}.rail .brand{order:1}.rail .account-link{order:2;margin-left:auto}.rail nav{order:3;flex:0 0 100%;width:100%;margin:8px 0 0;overflow-x:auto;justify-content:flex-start;padding-bottom:8px}.rail nav .rail-item{flex:none;gap:6px;padding:9px 10px;font-size:11px}.rail nav .rail-item>span:not(.nav-dot){display:inline}.rail nav .nav-dot{display:none}.rail nav .rail-item svg{width:15px;height:15px}.rail .brand>span:last-child{display:block}.rail .account-link>span{display:none}
+  .assets-shelf-heading{padding:22px 20px 16px}.asset-tabs{padding:0 8px}.asset-empty{min-height:300px}.content-canvas{height:calc(100dvh - 170px)}
+}
