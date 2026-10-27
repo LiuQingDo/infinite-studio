@@ -1,0 +1,7 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "infinite-studio-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-22"
+  // Queue bindings are intentionally absent until the consumer, recovery and budget controls are implemented.
+}
