@@ -1,0 +1,53 @@
+/* Keep the native scrollbar and its hit area, but reveal only its slim thumb. */
+:not(.hide-scrollbar) {
+  scrollbar-color: auto;
+}
+
+:not(.hide-scrollbar)::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+:not(.hide-scrollbar)::-webkit-scrollbar-track,
+:not(.hide-scrollbar)::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+:not(.hide-scrollbar)::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: transparent;
+}
+
+:not(.hide-scrollbar).is-scrolling::-webkit-scrollbar-thumb {
+  background: rgba(82, 82, 82, 0.52);
+}
+
+.dark :not(.hide-scrollbar).is-scrolling::-webkit-scrollbar-thumb {
+  background: rgba(200, 200, 200, 0.5);
+}
+
+/* Firefox uses the standard scrollbar properties instead of WebKit pseudo-elements. */
+@supports (-moz-appearance: none) {
+  :not(.hide-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  :not(.hide-scrollbar).is-scrolling {
+    scrollbar-color: rgba(82, 82, 82, 0.52) transparent;
+  }
+
+  .dark :not(.hide-scrollbar).is-scrolling {
+    scrollbar-color: rgba(200, 200, 200, 0.5) transparent;
+  }
+}
+
+@media (forced-colors: active) {
+  :not(.hide-scrollbar) {
+    scrollbar-color: auto;
+  }
+
+  :not(.hide-scrollbar)::-webkit-scrollbar-thumb {
+    background: CanvasText;
+  }
+}

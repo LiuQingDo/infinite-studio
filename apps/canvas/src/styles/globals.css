@@ -288,10 +288,6 @@
         transition: opacity 0.18s ease;
     }
 
-    .hover-scrollbar-hint:hover::after {
-        opacity: 1;
-    }
-
     .canvas-control-select.ant-select .ant-select-selector,
     .canvas-control-number.ant-input-number {
         border-color: rgba(120, 113, 108, 0.32) !important;

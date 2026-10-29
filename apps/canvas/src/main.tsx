@@ -4,6 +4,8 @@ import "antd/dist/reset.css";
 import "streamdown/styles.css";
 import "./styles/globals.css";
 import "./styles/canvas-library.css";
+import "../../../packages/scrollbars/scrollbars.css";
+import "../../../packages/scrollbars/scrollbars";
 import { RouterProvider } from "react-router-dom";
 
 import { AppProviders } from "@/components/layout/app-providers";

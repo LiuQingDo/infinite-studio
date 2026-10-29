@@ -69,3 +69,6 @@ footer{border-color:#dedee2;color:#a1a1a6}
 @media(max-width:700px){.rail{width:100%;height:auto;padding:12px 4%;gap:2px}.rail nav{margin-left:auto}.rail-item{min-height:42px;padding:10px}.brand-mark{width:35px;height:35px}.topbar{height:52px}.content{padding-left:5%;padding-right:5%}.hero{grid-template-columns:1fr;min-height:0;padding:48px 0 50px;gap:30px}.hero-art{height:250px;border-radius:22px}.hero-orbit{width:210px;height:210px;top:20px}.orbit-two{width:160px;height:160px;top:45px}.hero-disc{width:112px;height:112px;top:69px;font-size:72px}.template-art{height:155px}.canvas-promo>div:first-child{padding:30px}.promo-art{border-top:1px solid #dedee2}.prompt-library-heading h1{font-size:27px}.prompt-layout{margin-top:24px}.image-history{border-color:#e8e8eb}}
 @media(max-width:430px){.hero h1{font-size:48px}.rail{padding-left:10px;padding-right:10px}.brand>span:last-child{display:none}.rail-item{padding:8px}.template-card{border-radius:16px}}
 @media(prefers-reduced-motion:reduce){.template-card,.prompt-card{transition:none}}
+
+/* Infinite Studio brand mark */
+.brand-mark{background:#e9eedf;flex:none}.brand-mark img{display:block;width:80%;height:auto}.hero-disc{background:#e9eedf}.hero-disc img{display:block;width:74%;height:auto}

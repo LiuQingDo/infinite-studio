@@ -5,6 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App } from './studio';
 import './style.css';
 import './visual-refresh.css';
+import './scrollbar-layout.css';
+import '../../../packages/scrollbars/scrollbars.css';
+import '../../../packages/scrollbars/scrollbars';
 
 const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(

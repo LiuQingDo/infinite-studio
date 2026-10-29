@@ -8,6 +8,7 @@ import { PromptLibrary, SavedPromptAssets } from './prompt-library';
 import { ImageStudio, type Conversation, type ImageLocation } from './image-studio';
 import { collectImageAssets } from './image-assets';
 import { ImageApiSettings } from './image-settings';
+import brandMark from './assets/infinite-studio-mark.svg';
 import './create.css';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
@@ -104,7 +105,7 @@ export function App() {
   const imageAssets = collectImageAssets(imageCollection.conversations);
   return <div className="app-shell">
     <aside className="rail" aria-label="主导航">
-      <button className="brand" onClick={() => setPage('home')} aria-label="Infinite Studio 首页"><span className="brand-mark">∞</span><span>infinite<br/><b>studio</b></span></button>
+      <button className="brand" onClick={() => setPage('home')} aria-label="Infinite Studio 首页"><span className="brand-mark"><img src={brandMark} alt=""/></span><span>infinite<br/><b>studio</b></span></button>
       <div className="rail-section">我的工作区</div>
       <nav>{navigation.map(item => <button key={item.id} aria-label={item.label} className={`rail-item ${page === item.id ? 'selected' : ''}`} aria-current={page === item.id ? 'page' : undefined} onClick={() => setPage(item.id)}><item.icon size={17}/><span>{item.label}</span>{page === item.id && <span className="nav-dot"/>}</button>)}</nav>
       <div className="rail-spacer"/><button aria-label="设置" aria-current={page === 'settings' ? 'page' : undefined} className={`rail-item settings-link ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')}><Settings size={17}/><span>设置</span></button><button aria-label="账户" aria-current={page === 'account' ? 'page' : undefined} className={`rail-item account-link ${page === 'account' ? 'selected' : ''}`} onClick={() => setPage('account')}><UserRound size={17}/><span>账户</span></button><div className="rail-footer"><span className="status-dot"/>{service}</div>
@@ -113,7 +114,7 @@ export function App() {
       <header className="topbar"><span>INFINITE STUDIO <span className="slash">/</span> {navigation.find(item => item.id === page)?.label ?? (page === 'settings' ? '设置' : '账户')}</span><span className="top-right"><span className="status-dot"/> 为创意留一片空间</span></header>
       <div className={`content ${page === 'canvas' ? 'content-canvas' : ''} ${page === 'create' ? 'content-create' : ''}`}>
         {page === 'home' && <>
-          <div className="hero"><div><div className="eyebrow"><span/> 你的创作空间</div><h1>让想法<br/><em>自由生长。</em></h1><p>从最初的念头到视觉创意，找到适合的起点，让灵感慢慢成形。</p><div className="hero-actions"><button className="dark-button" onClick={() => setPage('templates')}>探索模板 <ArrowRight size={16}/></button><button className="text-button" onClick={() => start(null)}>自由创作 <ArrowUpRight size={15}/></button></div></div><div className="hero-art" aria-hidden="true"><div className="hero-orbit orbit-one"/><div className="hero-orbit orbit-two"/><div className="hero-disc"><span>∞</span></div><span className="hero-art-label">为灵感<br/>留一片空间</span><span className="hero-art-index">图 01 / 从这里开始</span></div></div>
+          <div className="hero"><div><div className="eyebrow"><span/> 你的创作空间</div><h1>让想法<br/><em>自由生长。</em></h1><p>从最初的念头到视觉创意，找到适合的起点，让灵感慢慢成形。</p><div className="hero-actions"><button className="dark-button" onClick={() => setPage('templates')}>探索模板 <ArrowRight size={16}/></button><button className="text-button" onClick={() => start(null)}>自由创作 <ArrowUpRight size={15}/></button></div></div><div className="hero-art" aria-hidden="true"><div className="hero-orbit orbit-one"/><div className="hero-orbit orbit-two"/><div className="hero-disc"><img src={brandMark} alt=""/></div><span className="hero-art-label">为灵感<br/>留一片空间</span><span className="hero-art-index">图 01 / 从这里开始</span></div></div>
           <div className="section-heading"><div><span className="section-number">01 / 找到创作起点</span><h2>从一个想法开始。</h2><p>浏览示例提示词模板，或从空白页面自由创作。</p></div><button className="text-button" onClick={() => setPage('templates')}>浏览提示词库 <ArrowRight size={16}/></button></div>
           <div className="template-grid home-grid">{templates.slice(0, 3).map((template, index) => <TemplateCard key={template.id} template={template} index={index} onOpen={() => setDetail(template)}/>)}</div>
           <div className="canvas-promo"><div><span className="section-number">02 / 探索更多可能</span><h2>让一张图片<br/><em>延伸更多灵感。</em></h2><p>在画布上整理参考图和笔记，项目保存在当前浏览器中。</p><button className="text-button" onClick={() => setPage('canvas')}>打开画布 <ArrowRight size={16}/></button></div><div className="promo-art" aria-hidden="true"><span>让想法<br/>在这里汇聚。</span><div className="promo-card">✳</div><div className="promo-card second">一点<br/><i>灵感</i></div></div></div>

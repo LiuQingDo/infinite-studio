@@ -1,0 +1,13 @@
+/* Let the embedded canvas list's own scroll area reach the viewport edge. */
+.content.content-canvas {
+  max-width: none;
+  padding: 0;
+}
+
+.content-canvas .embedded-canvas {
+  border-radius: 0;
+}
+
+.content-canvas .canvas-loading {
+  inset: 0;
+}
