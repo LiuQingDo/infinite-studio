@@ -19,3 +19,4 @@ web/public/plugins
 plugins/canvas/*/dist
 plugins/canvas/*/node_modules
 web/public/plugins
+/apps/web/.image-api-settings.json

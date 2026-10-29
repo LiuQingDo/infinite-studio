@@ -1,6 +1,7 @@
 import { createServer, defineConfig, type Plugin } from 'vite';
 import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
+import { imageApi } from './image-api';
 import tailwindcss from '@tailwindcss/vite';
 
 function canvasApp(): Plugin {
@@ -18,6 +19,6 @@ function canvasApp(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [canvasApp(), react(), tailwindcss()],
-  server: { proxy: { '/api': 'http://127.0.0.1:8787' } },
+  plugins: [imageApi(), canvasApp(), react(), tailwindcss()],
+  server: { fs: { deny: ['.env', '.env.*', '*.{crt,pem}', '**/.image-api-settings.json'] }, proxy: { '/api': 'http://127.0.0.1:8787' } },
 });

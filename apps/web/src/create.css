@@ -69,3 +69,5 @@
 @media(prefers-reduced-motion:reduce){.reference-popover,.reference-popover.is-open{transition:none}}
 /* Align the conversation sidebar with the main navigation edge. */
 .main-create .content-create{width:100%;max-width:none;margin:0;padding:0}
+
+.image-studio-container:not([hidden]){height:100%;min-height:0}

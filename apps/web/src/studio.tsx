@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient, type Session } from '@supabase/supabase-js';
-import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, FolderHeart, Grid2X2, Image, LayoutGrid, Sparkles, StickyNote, UserRound, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, FolderHeart, Grid2X2, Image, LayoutGrid, Sparkles, StickyNote, UserRound, Settings, X } from 'lucide-react';
 import type { ImageTask, ServiceStatus, TaskStatus } from '@infinite-studio/contracts';
 import { buildPrompt, templates, type Template } from './templates';
 import { PromptLibrary, SavedPromptAssets } from './prompt-library';
 import { ImageStudio } from './image-studio';
+import { ImageApiSettings } from './image-settings';
 import './create.css';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 const supabase = url && key ? createClient(url, key) : null;
 const taskLabels: Record<TaskStatus, string> = { queued: '排队中', submitting: '提交中', running: '生成中', succeeded: '已完成', failed: '失败', unknown: '状态待确认' };
-type Page = 'home' | 'templates' | 'create' | 'canvas' | 'assets' | 'account';
+type Page = 'home' | 'templates' | 'create' | 'canvas' | 'assets' | 'account' | 'settings';
 type AssetCategory = 'prompts' | 'favorites' | 'images';
 const assetCategories: { id: AssetCategory; label: string; icon: typeof Grid2X2; title: string; description: string; action: string; destination: 'templates' | 'create' }[] = [
   { id: 'prompts', label: '我的提示词', icon: StickyNote, title: '你的提示词，留在这里。', description: '提示词保存功能尚未接通。你可以先在图片生成中编辑创意。', action: '前往图片生成', destination: 'create' },
   { id: 'favorites', label: '收藏提示词', icon: FolderHeart, title: '收藏值得回来的灵感。', description: '先去提示词库寻找创作起点。', action: '浏览提示词库', destination: 'templates' },
-  { id: 'images', label: '已生成图片', icon: Image, title: '为作品留一处空间。', description: '图片生成和作品保存功能尚未接通，生成后的图片将在这里查看。', action: '前往图片生成', destination: 'create' },
+  { id: 'images', label: '已生成图片', icon: Image, title: '为作品留一处空间。', description: '生成的图片保存在创作对话中，可以回到创作页查看和继续编辑。', action: '前往图片生成', destination: 'create' },
 ];
 
 async function readJson<T>(path: string, token?: string): Promise<T> {
@@ -101,10 +102,10 @@ export function App() {
       <button className="brand" onClick={() => setPage('home')} aria-label="Infinite Studio 首页"><span className="brand-mark">∞</span><span>infinite<br/><b>studio</b></span></button>
       <div className="rail-section">我的工作区</div>
       <nav>{navigation.map(item => <button key={item.id} aria-label={item.label} className={`rail-item ${page === item.id ? 'selected' : ''}`} aria-current={page === item.id ? 'page' : undefined} onClick={() => setPage(item.id)}><item.icon size={17}/><span>{item.label}</span>{page === item.id && <span className="nav-dot"/>}</button>)}</nav>
-      <div className="rail-spacer"/><button aria-label="账户" aria-current={page === 'account' ? 'page' : undefined} className={`rail-item account-link ${page === 'account' ? 'selected' : ''}`} onClick={() => setPage('account')}><UserRound size={17}/><span>账户</span></button><div className="rail-footer"><span className="status-dot"/>{service}</div>
+      <div className="rail-spacer"/><button aria-label="设置" aria-current={page === 'settings' ? 'page' : undefined} className={`rail-item settings-link ${page === 'settings' ? 'selected' : ''}`} onClick={() => setPage('settings')}><Settings size={17}/><span>设置</span></button><button aria-label="账户" aria-current={page === 'account' ? 'page' : undefined} className={`rail-item account-link ${page === 'account' ? 'selected' : ''}`} onClick={() => setPage('account')}><UserRound size={17}/><span>账户</span></button><div className="rail-footer"><span className="status-dot"/>{service}</div>
     </aside>
     <main className={`main ${page === 'canvas' ? 'main-canvas' : ''} ${page === 'create' ? 'main-create' : ''}`} >
-      <header className="topbar"><span>INFINITE STUDIO <span className="slash">/</span> {navigation.find(item => item.id === page)?.label ?? '账户'}</span><span className="top-right"><span className="status-dot"/> 为创意留一片空间</span></header>
+      <header className="topbar"><span>INFINITE STUDIO <span className="slash">/</span> {navigation.find(item => item.id === page)?.label ?? (page === 'settings' ? '设置' : '账户')}</span><span className="top-right"><span className="status-dot"/> 为创意留一片空间</span></header>
       <div className={`content ${page === 'canvas' ? 'content-canvas' : ''} ${page === 'create' ? 'content-create' : ''}`}>
         {page === 'home' && <>
           <div className="hero"><div><div className="eyebrow"><span/> 你的创作空间</div><h1>让想法<br/><em>自由生长。</em></h1><p>从最初的念头到视觉创意，找到适合的起点，让灵感慢慢成形。</p><div className="hero-actions"><button className="dark-button" onClick={() => setPage('templates')}>探索模板 <ArrowRight size={16}/></button><button className="text-button" onClick={() => start(null)}>自由创作 <ArrowUpRight size={15}/></button></div></div><div className="hero-art" aria-hidden="true"><div className="hero-orbit orbit-one"/><div className="hero-orbit orbit-two"/><div className="hero-disc"><span>∞</span></div><span className="hero-art-label">为灵感<br/>留一片空间</span><span className="hero-art-index">图 01 / 从这里开始</span></div></div>
@@ -113,7 +114,7 @@ export function App() {
           <div className="canvas-promo"><div><span className="section-number">02 / 探索更多可能</span><h2>让一张图片<br/><em>延伸更多灵感。</em></h2><p>在画布上整理参考图和笔记，项目保存在当前浏览器中。</p><button className="text-button" onClick={() => setPage('canvas')}>打开画布 <ArrowRight size={16}/></button></div><div className="promo-art" aria-hidden="true"><span>让想法<br/>在这里汇聚。</span><div className="promo-card">✳</div><div className="promo-card second">一点<br/><i>灵感</i></div></div></div>
         </>}
         {page === 'templates' && <PromptLibrary onUse={useLibraryPrompt}/>}
-        {page === 'create' && <ImageStudio prompt={prompt} setPrompt={setPrompt} ratio={ratio} setRatio={setRatio} selected={selected} values={values} updateField={updateField} clearTemplate={() => { setSelected(null); setValues({}); }} onBrowse={() => setPage('templates')}/>}
+        <div className="image-studio-container" hidden={page !== 'create'}><ImageStudio visible={page === 'create'} onSettings={() => setPage('settings')} prompt={prompt} setPrompt={setPrompt} ratio={ratio} setRatio={setRatio} selected={selected} values={values} updateField={updateField} clearTemplate={() => { setSelected(null); setValues({}); }} onBrowse={() => setPage('templates')}/></div>
         {page === 'canvas' && !canvasReady && <div className="canvas-loading" role="status">正在加载画布工作区…</div>}
         <iframe ref={canvasFrame} className={`embedded-canvas ${page === 'canvas' && canvasProjectOpen ? 'canvas-fullscreen' : ''}`} hidden={page !== 'canvas'} title="无限画布" src="/canvas-app/#/canvas"/>
         {page === 'assets' && <section className="assets-page" aria-labelledby="assets-title">
@@ -124,6 +125,7 @@ export function App() {
             {assetCategory === 'favorites' ? <SavedPromptAssets onUse={useLibraryPrompt}/> : <div className="asset-empty"><div className="asset-empty-icon"><activeAssetCategory.icon size={25}/></div><span className="section-number">{activeAssetCategory.label}</span><h3>{activeAssetCategory.title}</h3><p>{activeAssetCategory.description}</p><button className="outline-button" onClick={() => setPage(activeAssetCategory.destination)}>{activeAssetCategory.action} <ArrowRight size={15}/></button></div>}
           </div>
         </section>}
+        {page === 'settings' && <ImageApiSettings/>}
         {page === 'account' && <div className="account-page"><span className="section-number">我的账户</span><h1>属于你的<em>创作空间。</em></h1><div className="account-card">{session ? <><h2>欢迎回来。</h2><p>已登录：{session.user.email}</p><button className="outline-button" onClick={() => void supabase?.auth.signOut()}>退出登录</button><div className="task-list"><h3>最近任务</h3>{tasks.isPending ? <p>加载中…</p> : tasks.isError ? <p>暂时无法获取任务，请稍后重试。</p> : tasks.data?.tasks.length ? tasks.data.tasks.map(task => <p key={task.id}>{taskLabels[task.status] ?? '状态未知'} · {new Date(task.created_at).toLocaleDateString('zh-CN')}</p>) : <p>暂无任务。</p>}</div></> : supabase ? <><h2>登录账户。</h2><p>使用已有账户登录，查看最近任务。</p><form onSubmit={signIn}><label className="field">邮箱<input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"/></label><label className="field">密码<input type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password"/></label><button className="dark-button" type="submit">登录 <ArrowRight size={15}/></button>{message && <p role="alert">{message}</p>}</form></> : <><h2>账户尚未接通。</h2><p>配置工作区后即可登录。</p></>}</div></div>}
         {page !== 'canvas' && page !== 'create' && <footer><span>INFINITE STUDIO ©</span><span>让创意继续生长 <ArrowUpRight size={12}/></span></footer>}
       </div>
