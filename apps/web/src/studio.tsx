@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient, type Session } from '@supabase/supabase-js';
 import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, FolderHeart, Grid2X2, Image, LayoutGrid, Sparkles, StickyNote, UserRound, Settings, X } from 'lucide-react';
 import type { ImageTask, ServiceStatus, TaskStatus } from '@infinite-studio/contracts';
 import { buildPrompt, templates, type Template } from './templates';
 import { PromptLibrary, SavedPromptAssets } from './prompt-library';
-import { ImageStudio } from './image-studio';
+import { ImageStudio, type Conversation, type ImageLocation } from './image-studio';
+import { collectImageAssets } from './image-assets';
 import { ImageApiSettings } from './image-settings';
 import './create.css';
 
@@ -18,7 +19,7 @@ type AssetCategory = 'prompts' | 'favorites' | 'images';
 const assetCategories: { id: AssetCategory; label: string; icon: typeof Grid2X2; title: string; description: string; action: string; destination: 'templates' | 'create' }[] = [
   { id: 'prompts', label: '我的提示词', icon: StickyNote, title: '你的提示词，留在这里。', description: '提示词保存功能尚未接通。你可以先在图片生成中编辑创意。', action: '前往图片生成', destination: 'create' },
   { id: 'favorites', label: '收藏提示词', icon: FolderHeart, title: '收藏值得回来的灵感。', description: '先去提示词库寻找创作起点。', action: '浏览提示词库', destination: 'templates' },
-  { id: 'images', label: '已生成图片', icon: Image, title: '为作品留一处空间。', description: '生成的图片保存在创作对话中，可以回到创作页查看和继续编辑。', action: '前往图片生成', destination: 'create' },
+  { id: 'images', label: '已生成图片', icon: Image, title: '为作品留一处空间。', description: '完成生成后，图片会显示在这里。', action: '前往图片生成', destination: 'create' },
 ];
 
 async function readJson<T>(path: string, token?: string): Promise<T> {
@@ -37,6 +38,9 @@ export function App() {
   const [canvasReady, setCanvasReady] = useState(false);
   const canvasFrame = useRef<HTMLIFrameElement>(null);
   const [assetCategory, setAssetCategory] = useState<AssetCategory>('prompts');
+  const [imageCollection, setImageCollection] = useState<{ conversations: Conversation[]; loaded: boolean; error: string }>({ conversations: [], loaded: false, error: '' });
+  const [openImage, setOpenImage] = useState<ImageLocation | null>(null);
+  const updateImageCollection = useCallback((conversations: Conversation[], loaded: boolean, error: string) => setImageCollection({ conversations, loaded, error }), []);
   const [session, setSession] = useState<Session | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -97,6 +101,7 @@ export function App() {
   const service = status.isError ? '服务暂不可用' : status.isPending ? '正在检查服务' : '工作区已连接';
   const navigation: { id: Page; label: string; icon: typeof Grid2X2 }[] = [{ id: 'home', label: '首页', icon: Grid2X2 }, { id: 'templates', label: '提词', icon: BookOpen }, { id: 'create', label: '创作', icon: Sparkles }, { id: 'canvas', label: '画布', icon: LayoutGrid }, { id: 'assets', label: '资产', icon: FolderHeart }];
   const activeAssetCategory = assetCategories.find(item => item.id === assetCategory)!;
+  const imageAssets = collectImageAssets(imageCollection.conversations);
   return <div className="app-shell">
     <aside className="rail" aria-label="主导航">
       <button className="brand" onClick={() => setPage('home')} aria-label="Infinite Studio 首页"><span className="brand-mark">∞</span><span>infinite<br/><b>studio</b></span></button>
@@ -114,7 +119,7 @@ export function App() {
           <div className="canvas-promo"><div><span className="section-number">02 / 探索更多可能</span><h2>让一张图片<br/><em>延伸更多灵感。</em></h2><p>在画布上整理参考图和笔记，项目保存在当前浏览器中。</p><button className="text-button" onClick={() => setPage('canvas')}>打开画布 <ArrowRight size={16}/></button></div><div className="promo-art" aria-hidden="true"><span>让想法<br/>在这里汇聚。</span><div className="promo-card">✳</div><div className="promo-card second">一点<br/><i>灵感</i></div></div></div>
         </>}
         {page === 'templates' && <PromptLibrary onUse={useLibraryPrompt}/>}
-        <div className="image-studio-container" hidden={page !== 'create'}><ImageStudio visible={page === 'create'} onSettings={() => setPage('settings')} prompt={prompt} setPrompt={setPrompt} ratio={ratio} setRatio={setRatio} selected={selected} values={values} updateField={updateField} clearTemplate={() => { setSelected(null); setValues({}); }} onBrowse={() => setPage('templates')}/></div>
+        <div className="image-studio-container" hidden={page !== 'create'}><ImageStudio visible={page === 'create'} onOpenCreate={() => setPage('create')} onSettings={() => setPage('settings')} prompt={prompt} setPrompt={setPrompt} ratio={ratio} setRatio={setRatio} selected={selected} values={values} updateField={updateField} clearTemplate={() => { setSelected(null); setValues({}); }} onBrowse={() => setPage('templates')} onConversationsChange={updateImageCollection} openImage={openImage}/></div>
         {page === 'canvas' && !canvasReady && <div className="canvas-loading" role="status">正在加载画布工作区…</div>}
         <iframe ref={canvasFrame} className={`embedded-canvas ${page === 'canvas' && canvasProjectOpen ? 'canvas-fullscreen' : ''}`} hidden={page !== 'canvas'} title="无限画布" src="/canvas-app/#/canvas"/>
         {page === 'assets' && <section className="assets-page" aria-labelledby="assets-title">
@@ -122,7 +127,7 @@ export function App() {
           <div className="assets-shelf">
             <div className="assets-shelf-heading"><div><span className="section-number">YOUR COLLECTION</span><h2>我的资产</h2></div><span className="assets-shelf-note">提示词与图片</span></div>
             <div className="asset-tabs" aria-label="资产分类">{assetCategories.map(item => <button key={item.id} className={`asset-tab ${assetCategory === item.id ? 'active' : ''}`} aria-pressed={assetCategory === item.id} onClick={() => setAssetCategory(item.id)}><item.icon size={16}/>{item.label}</button>)}</div>
-            {assetCategory === 'favorites' ? <SavedPromptAssets onUse={useLibraryPrompt}/> : <div className="asset-empty"><div className="asset-empty-icon"><activeAssetCategory.icon size={25}/></div><span className="section-number">{activeAssetCategory.label}</span><h3>{activeAssetCategory.title}</h3><p>{activeAssetCategory.description}</p><button className="outline-button" onClick={() => setPage(activeAssetCategory.destination)}>{activeAssetCategory.action} <ArrowRight size={15}/></button></div>}
+            {assetCategory === 'favorites' ? <SavedPromptAssets onUse={useLibraryPrompt}/> : assetCategory === 'images' && !imageCollection.loaded ? <div className="asset-empty" role="status">正在加载图片…</div> : assetCategory === 'images' && imageAssets.length ? <div className="image-assets"><div className="image-assets-heading"><span>{imageAssets.length} 张图片</span><span>图片保存在当前浏览器的创作对话中</span></div>{imageCollection.error && <p className="studio-notice" role="alert">{imageCollection.error}</p>}<div className="image-assets-grid">{imageAssets.map(asset => <button className="image-asset-card" key={`${asset.conversationId}:${asset.turnId}:${asset.imageId}`} onClick={() => { setOpenImage({ conversationId: asset.conversationId, turnId: asset.turnId, imageId: asset.imageId }); }} aria-label={`查看图片：${asset.prompt}`}><img src={asset.data} alt="" loading="lazy"/><span>{asset.prompt}</span><small>{new Date(asset.created).toLocaleDateString('zh-CN')}</small></button>)}</div></div> : <div className="asset-empty"><div className="asset-empty-icon"><activeAssetCategory.icon size={25}/></div><span className="section-number">{activeAssetCategory.label}</span><h3>{activeAssetCategory.title}</h3><p>{assetCategory === 'images' && imageCollection.error ? imageCollection.error : activeAssetCategory.description}</p><button className="outline-button" onClick={() => setPage(activeAssetCategory.destination)}>{activeAssetCategory.action} <ArrowRight size={15}/></button></div>}
           </div>
         </section>}
         {page === 'settings' && <ImageApiSettings/>}

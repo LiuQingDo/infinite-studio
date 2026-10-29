@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, ArrowUp, AtSign, ChevronRight, Copy, ImagePlus, Images, LoaderCircle, MessageSquare, Plus, RotateCcw, Sparkles, Trash2, X } from 'lucide-react';
 import type { Template } from './templates';
 import { StudioSelect } from './studio-select';
@@ -8,8 +9,9 @@ import { DEFAULT_IMAGE_MODELS } from './image-models';
 type Reference = { id: string; name: string; data: string };
 type Settings = { model: string; ratio: string; resolution: string; count: number };
 type Turn = { id: string; prompt: string; references: Reference[]; settings: Settings; images: Reference[]; state: 'running' | 'complete' | 'interrupted' | 'failed'; error?: string; created: number };
-type Conversation = { id: string; title: string; turns: Turn[]; updated: number };
-type Props = { visible: boolean; onSettings: () => void; prompt: string; setPrompt: Dispatch<SetStateAction<string>>; ratio: string; setRatio: Dispatch<SetStateAction<string>>; selected: Template | null; values: Record<string, string>; updateField: (key: string, value: string) => void; clearTemplate: () => void; onBrowse: () => void };
+export type Conversation = { id: string; title: string; turns: Turn[]; updated: number };
+export type ImageLocation = { conversationId: string; turnId: string; imageId: string };
+type Props = { visible: boolean; onSettings: () => void; onOpenCreate: () => void; prompt: string; setPrompt: Dispatch<SetStateAction<string>>; ratio: string; setRatio: Dispatch<SetStateAction<string>>; selected: Template | null; values: Record<string, string>; updateField: (key: string, value: string) => void; clearTemplate: () => void; onBrowse: () => void; onConversationsChange: (conversations: Conversation[], loaded: boolean, error: string) => void; openImage: ImageLocation | null };
 const uid = () => crypto.randomUUID();
 const emptyConversation = (): Conversation => ({ id: uid(), title: '新的创作', turns: [], updated: Date.now() });
 
@@ -41,7 +43,7 @@ async function saveConversations(conversations: Conversation[]): Promise<void> {
     tx.onerror = () => { db.close(); reject(tx.error); };
   });
 }
-export function ImageStudio({ visible, onSettings, prompt, setPrompt, ratio, setRatio, selected, values, updateField, clearTemplate, onBrowse }: Props) {
+export function ImageStudio({ visible, onSettings, onOpenCreate, prompt, setPrompt, ratio, setRatio, selected, values, updateField, clearTemplate, onBrowse, onConversationsChange, openImage }: Props) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState('');
   const [loaded, setLoaded] = useState(false);
@@ -66,6 +68,14 @@ export function ImageStudio({ visible, onSettings, prompt, setPrompt, ratio, set
   useEffect(() => { if (visible) void apiSettings().then(value => { setConfigured(value.hasKey); setEnabledModels(value.selectedModels); setModel(current => value.selectedModels.includes(current) ? current : value.selectedModels[0] || ''); }).catch(() => setConfigured(false)); }, [visible]);
   const saveQueue = useRef<Promise<void>>(Promise.resolve());
   const active = conversations.find(item => item.id === activeId);
+  useEffect(() => { onConversationsChange(conversations, loaded, storageError); }, [conversations, loaded, storageError, onConversationsChange]);
+  useEffect(() => {
+    if (!openImage) return;
+    const conversation = conversations.find(item => item.id === openImage.conversationId);
+    const turn = conversation?.turns.find(item => item.id === openImage.turnId);
+    const image = turn?.images.find(item => item.id === openImage.imageId);
+    if (conversation && turn && image) { setActiveId(conversation.id); setDetail({ turn, image }); }
+  }, [openImage]);
   useEffect(() => {
     let cancelled = false;
     readConversations().then(items => {
@@ -97,7 +107,7 @@ export function ImageStudio({ visible, onSettings, prompt, setPrompt, ratio, set
     if (valid.length !== files.length) setNotice('仅支持小于 10 MB 的 PNG、JPEG、WebP 图片，其他文件已跳过。'); else setNotice('');
     void Promise.all(valid.map(file => new Promise<Reference>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve({ id: uid(), name: file.name, data: String(reader.result) }); reader.onerror = reject; reader.readAsDataURL(file); }))).then(items => setReferences(current => [...current, ...items])).catch(() => setNotice('读取图片失败，请重试。'));
   }
-  function addReference(image: Reference) { setReferences(current => [...current, { ...image, id: uid() }]); setDetail(null); textarea.current?.focus(); }
+  function addReference(image: Reference) { setReferences(current => [...current, { ...image, id: uid() }]); setDetail(null); if (!visible) onOpenCreate(); requestAnimationFrame(() => textarea.current?.focus()); }
   function mention(index: number) { const el = textarea.current; const text = `@参考图${index + 1} `; if (el) { const start = el.selectionStart; const end = el.selectionEnd; setPrompt(prompt.slice(0, start) + text + prompt.slice(end)); requestAnimationFrame(() => { el.focus(); el.setSelectionRange(start + text.length, start + text.length); }); } setSubjectsOpen(false); }
   async function submitImage() {
     if (!loaded) return;
@@ -146,6 +156,6 @@ export function ImageStudio({ visible, onSettings, prompt, setPrompt, ratio, set
         <div className="image-toolbar"><div className="image-options"><span className="mode-label"><Images size={15}/> 图片生成</span>{enabledModels.length ? <StudioSelect label="选择模型" value={model} onChange={setModel} options={enabledModels.map(value => ({value,label:value}))}/> : <button className="at-button" onClick={onSettings}>选择模型</button>}<StudioSelect label="选择比例" value={ratio} onChange={setRatio} layout="ratios" options={['1:1','4:5','3:4','16:9','9:16'].map(value => ({value,label:value}))}/><StudioSelect label="选择分辨率" value={resolution} onChange={setResolution} layout="segments" options={['1K','2K','4K'].map(value => ({value,label:value}))}/><button className="at-button" onClick={() => setSubjectsOpen(open => !open)} aria-label="引用参考图"><AtSign size={16}/></button></div><button className="demo-send" onClick={() => void submitImage()} disabled={!loaded}><span>生成图片</span><ArrowUp size={17}/></button></div>
       </div>{(notice || storageError) && <p className="studio-notice" role="alert">{notice || storageError}</p>}<p className="composer-caption">对话、参考图和生成结果保存在当前浏览器</p></div>
     </div>
-    {detail && <div className="image-detail-backdrop" onClick={() => setDetail(null)}><section className="image-detail" role="dialog" aria-modal="true" aria-label="图片详情" onClick={e => e.stopPropagation()}><button className="image-detail-close" onClick={() => setDetail(null)} aria-label="关闭图片详情" autoFocus><X size={20}/></button><div className="detail-image-stage"><img src={detail.image.data} alt={detail.image.name}/></div><div className="image-detail-info"><span className="detail-overline">IMAGE DETAILS / 图片详情</span><h2>创作的另一种可能。</h2>{detail.turn.settings.model.startsWith('示例模型') && <span className="demo-tag">演示图片</span>}<div className="detail-thumbnails">{detail.turn.images.map(image => <button key={image.id} className={image.id === detail.image.id ? 'active' : ''} onClick={() => setDetail({ ...detail, image })} aria-label={`查看${image.name}`}><img src={image.data} alt=""/></button>)}</div><div className="detail-prompt"><span>图片描述</span><p>{detail.turn.prompt}</p></div><div className="detail-spec"><span>模型</span><strong>{detail.turn.settings.model}</strong><span>比例 / 分辨率</span><strong>{detail.turn.settings.ratio} / {detail.turn.settings.resolution}</strong></div><button className="detail-reference-button" onClick={() => addReference(detail.image)}><ImagePlus size={16}/> 用作参考图 <ChevronRight size={16}/></button><button className="detail-edit-button" onClick={() => { editTurn(detail.turn); setDetail(null); }}><RotateCcw size={15}/> 重新编辑这次描述</button><a className="detail-edit-button" href={detail.image.data} download={detail.image.name + (detail.image.data.startsWith('data:image/webp') ? '.webp' : detail.image.data.startsWith('data:image/jpeg') ? '.jpg' : '.png')}>下载图片</a></div></section></div>}
+    {detail && createPortal(<div className="image-detail-backdrop" onClick={() => setDetail(null)}><section className="image-detail" role="dialog" aria-modal="true" aria-label="图片详情" onClick={e => e.stopPropagation()}><button className="image-detail-close" onClick={() => setDetail(null)} aria-label="关闭图片详情" autoFocus><X size={20}/></button><div className="detail-image-stage"><img src={detail.image.data} alt={detail.image.name}/></div><div className="image-detail-info"><span className="detail-overline">IMAGE DETAILS / 图片详情</span><h2>创作的另一种可能。</h2>{detail.turn.settings.model.startsWith('示例模型') && <span className="demo-tag">演示图片</span>}<div className="detail-thumbnails">{detail.turn.images.map(image => <button key={image.id} className={image.id === detail.image.id ? 'active' : ''} onClick={() => setDetail({ ...detail, image })} aria-label={`查看${image.name}`}><img src={image.data} alt=""/></button>)}</div><div className="detail-prompt"><span>图片描述</span><p>{detail.turn.prompt}</p></div><div className="detail-spec"><span>模型</span><strong>{detail.turn.settings.model}</strong><span>比例 / 分辨率</span><strong>{detail.turn.settings.ratio} / {detail.turn.settings.resolution}</strong></div><button className="detail-reference-button" onClick={() => addReference(detail.image)}><ImagePlus size={16}/> 用作参考图 <ChevronRight size={16}/></button><button className="detail-edit-button" onClick={() => { editTurn(detail.turn); setDetail(null); if (!visible) { onOpenCreate(); requestAnimationFrame(() => textarea.current?.focus()); } }}><RotateCcw size={15}/> 重新编辑这次描述</button><a className="detail-edit-button" href={detail.image.data} download={detail.image.name + (detail.image.data.startsWith('data:image/webp') ? '.webp' : detail.image.data.startsWith('data:image/jpeg') ? '.jpg' : '.png')}>下载图片</a></div></section></div>, document.body)}
   </section>;
 }
