@@ -23,3 +23,24 @@
 .canvas-library-empty{min-height:260px;border:1px dashed #d8e0d2;background:#fcfcf8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;color:#82907d;font-size:13px}.canvas-library-empty h3{color:#3d4b39;font-size:17px;margin:15px 0 6px}.canvas-library-empty p{margin:0 0 20px;line-height:1.7}.canvas-empty-icon{width:45px;height:45px;display:grid;place-items:center;border-radius:50%;background:#eaf0e4;color:#819a74}
 @media(max-width:850px){.canvas-library-inner{padding:28px 25px 50px}.canvas-library-hero{grid-template-columns:1fr 32%}.canvas-library-intro{padding:30px}.canvas-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.canvas-illustration-card.card-one{left:10%}.canvas-illustration-card.card-two{left:50%}}
 @media(max-width:560px){.canvas-library-inner{padding:18px 16px 40px}.canvas-library-hero{display:block}.canvas-library-intro{padding:26px 23px}.canvas-library-illustration{height:115px}.canvas-illustration-card.card-one{width:70px;height:85px;top:15px;left:33%;font-size:40px}.canvas-illustration-card.card-two{width:60px;height:70px;top:30px;left:52%;font-size:26px}.canvas-illustration-orbit{width:100px;height:100px;top:5px;left:42%}.canvas-collection{padding-top:30px}.canvas-collection-heading{align-items:start;flex-direction:column}.canvas-project-grid{grid-template-columns:1fr}.canvas-library-empty{min-height:230px}}
+
+/* Match the studio shell while keeping the canvas itself focused on its tools. */
+.canvas-library{background:#f5f5f7;color:#1d1d1f;font-family:"SF Pro Display","PingFang SC","Microsoft YaHei",sans-serif}
+.canvas-library-hero{background:#eaeaec;border:0;border-radius:24px}
+.canvas-kicker{color:#a15c3d}.canvas-kicker span{background:#ec6b2d}
+.canvas-library-intro h1{font-weight:700}.canvas-library-intro h1 em{color:#86868b}
+.canvas-library-description,.canvas-collection-heading>div>p:last-child{color:#6e6e73}
+.canvas-library .ant-btn{height:38px;border-radius:100px}
+.canvas-library .ant-btn-primary{background:#1d1d1f;border-color:#1d1d1f}
+.canvas-library .ant-btn-primary:not(:disabled):hover{background:#414144;border-color:#414144}
+.canvas-library-illustration{background:linear-gradient(135deg,#f3f3f3,#dddde0)}
+.canvas-illustration-grid,.canvas-cover-grid{background-image:linear-gradient(#86868b20 1px,transparent 1px),linear-gradient(90deg,#86868b20 1px,transparent 1px)}
+.canvas-illustration-card{border-radius:12px;box-shadow:0 16px 30px #0002}
+.canvas-illustration-card.card-one{background:#fff;color:#cf7042}.canvas-illustration-card.card-two{background:#28282b;color:#fff}
+.canvas-illustration-orbit{border-color:#fff9}.canvas-illustration-label{color:#86868b}
+.canvas-project-card{border:0;border-radius:16px;overflow:hidden;box-shadow:0 3px 16px #0000000b}
+.canvas-project-card:hover{box-shadow:0 12px 28px #00000014}
+.canvas-project-cover{background:#ebebed}.canvas-cover-sheet{background:#fff;color:#ce7143;border-radius:8px}.canvas-cover-line{background:#a1a1a6}.canvas-cover-arrow{color:#86868b}
+.canvas-project-body h2{color:#1d1d1f}.canvas-project-body input[type=checkbox]{accent-color:#1d1d1f}
+.canvas-library-empty{background:#fff;border:1px dashed #d2d2d7;border-radius:18px;color:#86868b}.canvas-library-empty h3{color:#1d1d1f}.canvas-empty-icon{background:#f1f1f3;color:#bd6439}
+@media(prefers-reduced-motion:reduce){.canvas-project-card{transition:none}}
