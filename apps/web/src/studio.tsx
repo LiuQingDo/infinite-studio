@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { createClient, type Session } from '@supabase/supabase-js';
-import { ArrowDown, ArrowRight, ArrowUp, ArrowUpRight, BookOpen, Check, ChevronDown, FolderHeart, Grid2X2, Image, LayoutGrid, Plus, Sparkles, StickyNote, UserRound, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, FolderHeart, Grid2X2, Image, LayoutGrid, Sparkles, StickyNote, UserRound, X } from 'lucide-react';
 import type { ImageTask, ServiceStatus, TaskStatus } from '@infinite-studio/contracts';
 import { buildPrompt, templates, type Template } from './templates';
 import { PromptLibrary, SavedPromptAssets } from './prompt-library';
+import { ImageStudio } from './image-studio';
 import './create.css';
 
 const url = import.meta.env.VITE_SUPABASE_URL;
@@ -44,22 +45,6 @@ export function App() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [prompt, setPrompt] = useState('');
   const [ratio, setRatio] = useState('1:1');
-  const [ratioOpen, setRatioOpen] = useState(false);
-  const ratioMenu = useRef<HTMLDivElement>(null);
-  const ratioTrigger = useRef<HTMLButtonElement>(null);
-  const [reference, setReference] = useState<{ name: string; data: string } | null>(null);
-  useEffect(() => {
-    if (!ratioOpen) return;
-    const closeOnOutside = (event: PointerEvent) => {
-      if (!ratioMenu.current?.contains(event.target as Node)) setRatioOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { setRatioOpen(false); ratioTrigger.current?.focus(); }
-    };
-    document.addEventListener('pointerdown', closeOnOutside);
-    document.addEventListener('keydown', closeOnEscape);
-    return () => { document.removeEventListener('pointerdown', closeOnOutside); document.removeEventListener('keydown', closeOnEscape); };
-  }, [ratioOpen]);
   useEffect(() => {
     const onCanvasRoute = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== canvasFrame.current?.contentWindow || event.data?.type !== 'infinite-studio:canvas-route') return;
@@ -98,24 +83,15 @@ export function App() {
     setMessage(error ? '登录失败，请检查账号信息后重试。' : '');
   }
   function start(template: Template | null) {
-    setSelected(template); setValues({}); setPrompt(''); setRatio(template?.ratio ?? '1:1'); setReference(null); setDetail(null); setPage('create');
+    setSelected(template); setValues({}); setPrompt(''); setRatio(template?.ratio ?? '1:1'); setDetail(null); setPage('create');
   }
   function useLibraryPrompt(text: string) {
-    setSelected(null); setValues({}); setPrompt(text); setRatio('1:1'); setReference(null); setDetail(null); setPage('create');
+    setSelected(null); setValues({}); setPrompt(text); setRatio('1:1'); setDetail(null); setPage('create');
   }
   function updateField(key: string, value: string) {
     const next = { ...values, [key]: value };
     setValues(next);
     if (selected) setPrompt(buildPrompt(selected, next));
-  }
-  function loadImage(file: File | undefined) {
-    if (!file) return;
-    if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) { setMessage('请选择小于 10 MB 的图片。'); return; }
-    setMessage('');
-    const reader = new FileReader();
-    reader.onerror = () => setMessage('无法读取图片，请重试。');
-    reader.onload = () => setReference({ name: file.name, data: String(reader.result) });
-    reader.readAsDataURL(file);
   }
   const service = status.isError ? '服务暂不可用' : status.isPending ? '正在检查服务' : '工作区已连接';
   const navigation: { id: Page; label: string; icon: typeof Grid2X2 }[] = [{ id: 'home', label: '首页', icon: Grid2X2 }, { id: 'templates', label: '提示词库', icon: BookOpen }, { id: 'create', label: '图片生成', icon: Sparkles }, { id: 'canvas', label: '画布项目', icon: LayoutGrid }, { id: 'assets', label: '资产', icon: FolderHeart }];
@@ -137,22 +113,7 @@ export function App() {
           <div className="canvas-promo"><div><span className="section-number">02 / 探索更多可能</span><h2>让一张图片<br/><em>延伸更多灵感。</em></h2><p>在画布上整理参考图和笔记，项目保存在当前浏览器中。</p><button className="text-button" onClick={() => setPage('canvas')}>打开画布 <ArrowRight size={16}/></button></div><div className="promo-art" aria-hidden="true"><span>让想法<br/>在这里汇聚。</span><div className="promo-card">✳</div><div className="promo-card second">一点<br/><i>灵感</i></div></div></div>
         </>}
         {page === 'templates' && <PromptLibrary onUse={useLibraryPrompt}/>}
-        {page === 'create' && <section className="create-conversation" aria-labelledby="create-title">
-          <div className="conversation-heading"><div><span className="conversation-kicker"><span/> IMAGE STUDIO / 创作空间</span><h1 id="create-title">你好，今天想要<span>创作什么？</span></h1><p>从一句描述开始，让你的想法慢慢成形。</p></div><span className="conversation-status"><span/> 生成服务尚未接通</span></div>
-          <div className="conversation-body">
-            <div className="conversation-composer">
-              {selected && <div className="composer-template"><div className="template-heading"><div><span>当前模板</span><strong>{selected.name}</strong></div><button className="template-clear" onClick={() => { setSelected(null); setValues({}); }} aria-label="移除当前模板"><X size={15}/></button></div><p>填写字段生成提示词草稿，完成后可继续编辑。</p><div className="template-fields">{selected.fields.map(field => <label key={field.key}>{field.label}<input value={values[field.key] ?? ''} placeholder={field.placeholder} onChange={e => updateField(field.key, e.target.value)}/></label>)}</div></div>}
-              <div className="composer-input-row">
-                <div className="composer-reference-slot"><label className={`composer-upload ${reference ? 'has-reference' : ''}`} title={reference ? '更换参考图' : '添加参考图'}>{reference ? <img src={reference.data} alt="已选择的参考图"/> : <><Plus size={20}/><span className="sr-only">添加参考图</span></>}<input type="file" accept="image/*" aria-label={reference ? '更换参考图' : '添加参考图'} onChange={e => { loadImage(e.target.files?.[0]); e.currentTarget.value = ''; }}/></label>{reference && <button type="button" className="reference-remove" aria-label={`移除参考图 ${reference.name}`} onClick={() => setReference(null)}><X size={13}/></button>}</div>
-                <label className="sr-only" htmlFor="create-prompt">描述你想创作的画面</label><textarea id="create-prompt" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="添加参考图，输入文字，描述你想生成的图片。" rows={4}/>
-              </div>
-              <div className="composer-toolbar"><div className="composer-options"><span className="composer-mode"><Image size={16}/> 图片生成</span><span className="composer-divider" aria-hidden="true"/><div className="composer-ratio" ref={ratioMenu} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setRatioOpen(false); }}><button ref={ratioTrigger} className="ratio-trigger" type="button" aria-label={`图片比例 ${ratio}`} aria-expanded={ratioOpen} aria-controls="ratio-options" onClick={() => setRatioOpen(open => !open)}><span>比例</span><strong>{ratio}</strong><ChevronDown size={14}/></button>{ratioOpen && <div id="ratio-options" className="ratio-menu" role="group" aria-label="选择图片比例">{['1:1', '4:5', '3:4', '16:9', '9:16'].map(option => <button key={option} type="button" aria-pressed={ratio === option} onClick={() => { setRatio(option); setRatioOpen(false); ratioTrigger.current?.focus(); }}><span>{option}</span>{ratio === option && <Check size={14}/>}</button>)}</div>}</div></div><button className="composer-send" disabled aria-label="生成图片（服务尚未接通）" title="生成服务尚未接通"><ArrowUp size={19}/></button></div>
-            </div>
-            {message && <p className="form-message" role="alert">{message}</p>}
-            <p className="composer-note">图片生成服务尚未接通，当前可以先编辑提示词和选择参考图。</p>
-            <div className="conversation-inspiration"><div className="inspiration-heading"><div><span>需要一点灵感？</span><p>从示例模板开始，或探索更多提示词。</p></div><button onClick={() => setPage('templates')}>浏览提示词库 <ArrowUpRight size={15}/></button></div><div className="inspiration-list">{templates.slice(0, 3).map((template, index) => <button key={template.id} onClick={() => start(template)}><span className="inspiration-index">0{index + 1}</span><span><strong>{template.name}</strong><small>{template.task}</small></span><ArrowUpRight size={16}/></button>)}</div></div>
-          </div>
-        </section>}
+        {page === 'create' && <ImageStudio prompt={prompt} setPrompt={setPrompt} ratio={ratio} setRatio={setRatio} selected={selected} values={values} updateField={updateField} clearTemplate={() => { setSelected(null); setValues({}); }} onBrowse={() => setPage('templates')}/>}
         {page === 'canvas' && !canvasReady && <div className="canvas-loading" role="status">正在加载画布工作区…</div>}
         <iframe ref={canvasFrame} className={`embedded-canvas ${page === 'canvas' && canvasProjectOpen ? 'canvas-fullscreen' : ''}`} hidden={page !== 'canvas'} title="无限画布" src="/canvas-app/#/canvas"/>
         {page === 'assets' && <section className="assets-page" aria-labelledby="assets-title">
