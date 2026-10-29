@@ -71,3 +71,18 @@
 .embedded-canvas[hidden]{display:none}
 .content-canvas{position:relative}
 .canvas-loading{position:absolute;inset:12px;z-index:2;display:grid;place-items:center;background:#f8f8f2;color:#84917e;font-size:12px;letter-spacing:.04em}
+/* Form controls have no borders or focus decorations. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+textarea,
+select,
+.search,
+.prompt-search {
+  border: 0 !important;
+  outline: 0;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 0;
+  box-shadow: none;
+}

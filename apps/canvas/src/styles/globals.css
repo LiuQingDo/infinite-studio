@@ -608,3 +608,53 @@
     border-radius: 0.6rem;
     font-size: 0.75rem;
 }
+
+/* Form controls have no borders or focus decorations. */
+/* Select menus share the same rounded, quiet surface in both themes. */
+[data-slot="select-content"],
+.ant-select-dropdown {
+    border: 0 !important;
+    border-radius: 18px !important;
+    padding: 8px !important;
+    box-shadow: 0 16px 48px rgb(0 0 0 / 16%) !important;
+}
+[data-slot="select-content"] {
+    transform-origin: var(--radix-select-content-transform-origin);
+    --menu-travel: -5px;
+}
+[data-slot="select-content"][data-side="top"] { --menu-travel: 5px; }
+[data-slot="select-content"][data-state="open"] { animation: studio-menu-in .2s cubic-bezier(.2,.8,.2,1); }
+[data-slot="select-content"][data-state="closed"] { animation: studio-menu-out .15s ease-in forwards; }
+[data-slot="select-item"], .ant-select-dropdown .ant-select-item {
+    min-height: 38px;
+    border-radius: 10px;
+    padding: 9px 12px;
+    margin-block: 2px;
+    transition: background-color .14s ease;
+}
+[data-slot="select-item"] { padding-right: 32px; }
+[data-slot="select-item"][data-state="checked"] { background: var(--accent); font-weight: 600; }
+.canvas-model-menu-heading { padding: 5px 10px 10px; font-size: 11px; color: var(--muted-foreground); }
+[data-slot="select-item"].canvas-model-menu-option { min-height: 58px; }
+.canvas-model-menu-option > [data-slot="select-item-text"] { width: 100%; }
+.canvas-model-menu-option img, .canvas-model-menu-option svg:not(.lucide-check) { width: 24px; height: 24px; margin-right: 5px; }
+.canvas-settings-surface button { outline: none; box-shadow: none; }
+@keyframes studio-menu-in { from { opacity: 0; transform: translateY(var(--menu-travel)) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes studio-menu-out { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(var(--menu-travel)) scale(.98); } }
+@media (prefers-reduced-motion: reduce) {
+    [data-slot="select-content"][data-state] { animation: none; }
+    [data-slot="select-item"], .ant-select-dropdown .ant-select-item { transition: none; }
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+textarea,
+select,
+[data-slot="select-trigger"],
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-picker,
+.ant-select .ant-select-selector {
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+}

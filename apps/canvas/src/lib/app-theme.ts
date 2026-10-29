@@ -42,6 +42,8 @@ export function getAntThemeConfig(dark: boolean): ThemeConfig {
             colorLinkActive: color.primary,
             colorTextLightSolid: color.primaryText,
             colorBgElevated: color.elevatedBg,
+            borderRadiusLG: 18,
+            motionDurationMid: "0.18s",
             controlItemBgHover: color.itemHoverBg,
             controlItemBgActive: color.itemSelectedBg,
             controlItemBgActiveHover: color.itemSelectedHoverBg,

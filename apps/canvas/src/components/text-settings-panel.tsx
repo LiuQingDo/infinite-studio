@@ -46,8 +46,8 @@ function OptionPill({ selected, theme, onClick, children }: { selected: boolean;
     return (
         <button
             type="button"
-            className="h-9 cursor-pointer rounded-full border px-2 text-sm transition hover:opacity-80"
-            style={{ background: "transparent", borderColor: selected ? theme.node.text : theme.node.stroke, color: theme.node.text }}
+            aria-pressed={selected} className="h-9 cursor-pointer rounded-xl border px-2 text-sm transition hover:opacity-80"
+            style={{ background: selected ? "color-mix(in srgb, currentColor 12%, transparent)" : theme.node.fill, borderColor: "transparent", color: theme.node.text }}
             onMouseDown={(event) => event.stopPropagation()}
             onClick={onClick}
         >

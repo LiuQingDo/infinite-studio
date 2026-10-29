@@ -69,9 +69,10 @@ export function ModelPicker({ config, value, onChange, capability, className, fu
                 onPointerDown={(event) => event.stopPropagation()}
                 onMouseDown={(event) => event.stopPropagation()}
             >
+                <div className="canvas-model-menu-heading">{pickerPlaceholder}</div>
                 {options.length ? (
                     options.map((model) => (
-                        <SelectItem key={model} value={model} textValue={modelOptionLabel(config, model)}>
+                        <SelectItem className="canvas-model-menu-option" key={model} value={model} textValue={modelOptionLabel(config, model)}>
                             <ModelLabel config={config} model={model} />
                         </SelectItem>
                     ))

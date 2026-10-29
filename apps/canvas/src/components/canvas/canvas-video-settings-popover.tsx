@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { createPortal } from "react-dom";
+import { AnimatedSettingsSurface } from "@/components/animated-settings-surface";
 import { Settings2 } from "lucide-react";
 import { Button } from "antd";
 
@@ -32,23 +32,26 @@ export function CanvasVideoSettingsPopover({ config, onConfigChange, buttonClass
             setOpen(false);
         };
 
+        const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); buttonRef.current?.querySelector("button")?.focus(); } };
+        window.addEventListener("keydown", closeOnEscape);
         syncPosition();
         window.addEventListener("resize", syncPosition);
         window.addEventListener("scroll", syncPosition, true);
         window.addEventListener("pointerdown", closeOnOutsidePointer, true);
         return () => {
+            window.removeEventListener("keydown", closeOnEscape);
             window.removeEventListener("resize", syncPosition);
             window.removeEventListener("scroll", syncPosition, true);
             window.removeEventListener("pointerdown", closeOnOutsidePointer, true);
         };
     }, [open]);
 
-    const panel = open && buttonRect ? <VideoSettingsPortal buttonRect={buttonRect} panelRef={panelRef} placement={placement} theme={theme} config={config} onConfigChange={onConfigChange} /> : null;
+    const panel = buttonRect ? <VideoSettingsPortal open={open} buttonRect={buttonRect} panelRef={panelRef} placement={placement} theme={theme} config={config} onConfigChange={onConfigChange} /> : null;
 
     return (
         <>
             <span ref={buttonRef} className="inline-flex min-w-0">
-                <Button size="small" type="text" className={buttonClassName || "!h-8 !max-w-[220px] !justify-start !rounded-full !px-2.5"} style={{ background: theme.node.fill, color: theme.node.text }} icon={<Settings2 className="size-3.5" />} onClick={() => setOpen((current) => !current)}>
+                <Button aria-expanded={open} aria-haspopup="dialog" size="small" type="text" className={buttonClassName || "!h-8 !max-w-[220px] !justify-start !rounded-full !px-2.5"} style={{ background: theme.node.fill, color: theme.node.text }} icon={<Settings2 className="size-3.5" />} onClick={() => setOpen((current) => !current)}>
                     <span className="truncate">
                         {videoResolutionLabel(config.vquality)} · {videoSizeLabel(config.size)} · {videoSecondsLabel(config.videoSeconds)} · {videoModeLabel(config.videoMode)}
                     </span>
@@ -60,6 +63,7 @@ export function CanvasVideoSettingsPopover({ config, onConfigChange, buttonClass
 }
 
 function VideoSettingsPortal({
+    open,
     buttonRect,
     panelRef,
     placement,
@@ -67,6 +71,7 @@ function VideoSettingsPortal({
     config,
     onConfigChange,
 }: {
+    open: boolean;
     buttonRect: DOMRect;
     panelRef: RefObject<HTMLDivElement | null>;
     placement: CanvasVideoSettingsPopoverProps["placement"];
@@ -95,17 +100,9 @@ function VideoSettingsPortal({
         color: theme.node.text,
     } as const;
 
-    return createPortal(
-        <div
-            ref={panelRef}
-            className="canvas-image-settings-popover"
-            style={style}
-            onPointerDown={(event) => event.stopPropagation()}
-            onMouseDown={(event) => event.stopPropagation()}
-            onClick={(event) => event.stopPropagation()}
-        >
+    return (
+        <AnimatedSettingsSurface open={open} panelRef={panelRef} style={style} topPlacement={topPlacement}>
             <VideoSettingsPanel config={config} onConfigChange={(key, value) => onConfigChange(key, value)} theme={theme} className="space-y-4" />
-        </div>,
-        document.body,
+        </AnimatedSettingsSurface>
     );
 }
