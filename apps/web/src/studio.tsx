@@ -94,7 +94,7 @@ export function App() {
     if (selected) setPrompt(buildPrompt(selected, next));
   }
   const service = status.isError ? '服务暂不可用' : status.isPending ? '正在检查服务' : '工作区已连接';
-  const navigation: { id: Page; label: string; icon: typeof Grid2X2 }[] = [{ id: 'home', label: '首页', icon: Grid2X2 }, { id: 'templates', label: '提示词库', icon: BookOpen }, { id: 'create', label: '图片生成', icon: Sparkles }, { id: 'canvas', label: '画布项目', icon: LayoutGrid }, { id: 'assets', label: '资产', icon: FolderHeart }];
+  const navigation: { id: Page; label: string; icon: typeof Grid2X2 }[] = [{ id: 'home', label: '首页', icon: Grid2X2 }, { id: 'templates', label: '提词', icon: BookOpen }, { id: 'create', label: '创作', icon: Sparkles }, { id: 'canvas', label: '画布', icon: LayoutGrid }, { id: 'assets', label: '资产', icon: FolderHeart }];
   const activeAssetCategory = assetCategories.find(item => item.id === assetCategory)!;
   return <div className="app-shell">
     <aside className="rail" aria-label="主导航">
